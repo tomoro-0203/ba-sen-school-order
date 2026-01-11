@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>注文システム</title>
+    <style>
+        /* 以前のスタイルを継承 */
+        body { font-family: sans-serif; background-color: #f0f2f5; margin: 0; padding: 20px; color: #333; line-height: 1.6; }
+        .container { max-width: 1000px; margin: auto; }
+        .card { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); margin-bottom: 20px; }
+        .step { display: none; }
+        .step.active { display: block; }
+        
+        .school-info-banner { 
+            background: linear-gradient(135deg, #4CAF50, #2E7D32); 
+            color: white; padding: 20px; border-radius: 12px; margin-bottom: 25px; text-align: center; 
+        }
+
+        /* 推奨数バッジのスタイル */
+        .recommend-badge {
+            display: inline-block;
+            background-color: #e3f2fd;
+            color: #1976d2;
+            font-size: 0.75em;
+            font-weight: bold;
+            padding: 2px 8px;
+            border-radius: 4px;
+            margin-bottom: 5px;
+            border: 1px solid #bbdefb;
+        }
+
+        /* 入力ボックスのデザイン */
+        input[type="text"], input[type="number"], select {
+            width: 100%; padding: 12px 15px; margin-top: 5px; border: 2px solid #e0e0e0; 
+            border-radius: 8px; box-sizing: border-box; font-size: 16px; transition: all 0.3s ease;
+            background-color: #fdfdfd; outline: none;
+        }
+        input:focus, select:focus { border-color: #4CAF50; background-color: #fff; box-shadow: 0 0 8px rgba(76, 175, 80, 0.2); }
+        label { display: block; font-size: 0.85em; color: #555; font-weight: 600; margin-top: 15px; }
+
+        /* 商品グリッド */
+        .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 20px; }
+        .product-card { background: white; border: 1px solid #eee; border-radius: 10px; padding: 15px; display: flex; flex-direction: column; position: relative; }
+        .product-img { width: 100%; height: 180px; object-fit: contain; background: #f9f9f9; border-radius: 5px; margin-bottom: 10px; }
+        .price { color: #e91e63; font-weight: bold; font-size: 1.1em; }
+
+        .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: white; padding: 15px 20px; border-top: 1px solid #ddd; text-align: center; z-index: 100; }
+        button { padding: 12px 30px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 1.1em; }
+        .btn-next { background-color: #4CAF50; color: white; width: 100%; max-width: 400px; }
+        .btn-back { background-color: #9e9e9e; color: white; }
+
+        .confirm-table { width: 100%; border-collapse: collapse; margin: 15px 0; }
+        .confirm-table th, .confirm-table td { border-bottom: 1px solid #ddd; padding: 10px; text-align: left; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div id="mainContent">
+        <div class="school-info-banner">
+            <p>Order Form</p>
+            <h1 id="schoolNameDisplay">読み込み中...</h1>
+        </div>
+
+        <div id="step1" class="step active">
+            <div class="card">
+                <h3>注文者情報の入力</h3>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+                    <div><label>選手氏名</label><input type="text" id="playerName" placeholder="例：山田 太郎"></div>
+                    <div><label>学年</label>
+                        <select id="grade"><option>1年</option><option>2年</option><option>3年</option></select>
+                    </div>
+                    <div style="grid-column: span 2;"><label>ローマ字表記</label><input type="text" id="romaji" placeholder="例：TARO YAMADA"></div>
+                </div>
+            </div>
+
+            <div id="productContainer" class="product-grid"></div>
+            <div style="height: 120px;"></div> 
+            
+            <div class="bottom-nav">
+                <button class="btn-next" onclick="goToStep(2)">注文内容を確認する</button>
+            </div>
+        </div>
+
+        <div id="step2" class="step card">
+            <h2>注文内容の最終確認</h2>
+            <div style="background:#f9f9f9; padding:20px; border-radius:8px; border-left: 5px solid #4CAF50;">
+                <p><strong>所属学校:</strong> <span class="confirm-school"></span></p>
+                <p><strong>選手氏名:</strong> <span id="confirmName"></span> (<span id="confirmRomaji"></span>)</p>
+                <p><strong>学年:</strong> <span id="confirmGrade"></span></p>
+            </div>
+            
+            <table class="confirm-table">
+                <thead><tr><th>商品名</th><th>サイズ</th><th>数量</th><th>小計</th></tr></thead>
+                <tbody id="confirmItems"></tbody>
+            </table>
+
+            <div style="display:flex; gap:10px; margin-top:30px;">
+                <button class="btn-back" onclick="goToStep(1)" style="flex:1;">修正する</button>
+                <button class="btn-next" id="sendBtn" onclick="submitOrder()" style="flex:2;">注文を確定する</button>
+            </div>
+        </div>
+
+        <div id="step3" class="step card" style="text-align:center; padding:60px 20px;">
+            <h1 style="color:#4CAF50; font-size: 3em;">✔</h1>
+            <h2>注文を受け付けました</h2>
+            <p><span class="confirm-school"></span> の注文として保存されました。</p>
+            <button onclick="location.reload()" class="btn-back">新しく注文する</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    const Get_GAS_URL = "https://script.google.com/macros/s/AKfycbwjSkydWY0wRVlOgnDqX6TfVHBTjXN57Iq8JWbmgdTXtZ5UWA6JFTFPPBkKrIl_VraQ/exec";
+    let masterProducts = []; 
+    let cart = []; // 確認画面へ行く瞬間に生成される
+    let schoolName = "";
+
+    window.onload = function() {
+        const urlParams = new URLSearchParams(window.location.search);
+        schoolName = urlParams.get('school');
+        if (schoolName) {
+            document.getElementById('schoolNameDisplay').innerText = schoolName;
+            document.querySelectorAll('.confirm-school').forEach(el => el.innerText = schoolName);
+            loadProducts();
+        }
+    };
+
+    async function loadProducts() {
+        const container = document.getElementById('productContainer');
+        try {
+            const response = await fetch(`${Get_GAS_URL}?school=${encodeURIComponent(schoolName)}`);
+            masterProducts = await response.json();
+            container.innerHTML = "";
+
+            masterProducts.forEach((item, index) => {
+                const sizes = String(item.サイズ).split(",").map(s => s.trim());
+                const sizeOptions = sizes.map(s => `<option value="${s}">${s}</option>`).join("");
+                
+                // 推奨数がある場合のみバッジを表示
+                const recommendTag = item.推奨数 ? `<div class="recommend-badge">推奨：${item.推奨数}</div>` : "";
+
+                const card = document.createElement('div');
+                card.className = 'product-card';
+                card.innerHTML = `
+                    <img src="${item.画像URL || 'https://via.placeholder.com/200?text=No+Image'}" class="product-img">
+                    ${recommendTag}
+                    <p><strong>${item.商品名}</strong></p>
+                    <p class="price">¥${Number(item.価格).toLocaleString()}</p>
+                    <div style="margin-top:auto;">
+                        <label>サイズ</label><select id="size-${index}">${sizeOptions}</select>
+                        <label>数量</label><input type="number" id="qty-${index}" value="0" min="0">
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        } catch (e) { container.innerHTML = "<p>通信エラー</p>"; }
+    }
+
+    // ステップ遷移（ここで入力を一括スキャン）
+    function goToStep(stepNum) {
+        if (stepNum === 2) {
+            const name = document.getElementById('playerName').value;
+            if (!name) { alert("選手氏名を入力してください。"); return; }
+
+            // カートを再構築（数量が1以上のものを収集）
+            cart = [];
+            masterProducts.forEach((product, index) => {
+                const qty = parseInt(document.getElementById(`qty-${index}`).value);
+                const size = document.getElementById(`size-${index}`).value;
+                if (qty > 0) {
+                    cart.push({
+                        productId: product.商品ID,
+                        itemName: product.商品名,
+                        size: size,
+                        quantity: qty,
+                        price: product.価格
+                    });
+                }
+            });
+
+            if (cart.length === 0) { alert("商品が選択されていません。数量を入力してください。"); return; }
+            
+            renderConfirmation(name);
+        }
+        document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
+        document.getElementById('step' + stepNum).classList.add('active');
+        window.scrollTo(0,0);
+    }
+
+    function renderConfirmation(name) {
+        document.getElementById('confirmName').innerText = name;
+        document.getElementById('confirmGrade').innerText = document.getElementById('grade').value;
+        document.getElementById('confirmRomaji').innerText = document.getElementById('romaji').value;
+        const tbody = document.getElementById('confirmItems');
+        tbody.innerHTML = cart.map(item => `
+            <tr><td>${item.itemName}</td><td>${item.size}</td><td>${item.quantity}</td><td>¥${(item.price * item.quantity).toLocaleString()}</td></tr>
+        `).join("");
+    }
+
+    const GAS_URL = "https://script.google.com/macros/s/AKfycbzx6l25G4jKelrcw2HTz2wx3qL5yL7PN8EV47kBH8ZLGYwziYfM7IgPHtu-H7fTCenWaA/exec";
+
+    async function submitOrder() {
+        const btn = document.getElementById('sendBtn');
+        btn.disabled = true; 
+        btn.innerText = "送信中...";
+
+        const playerName = document.getElementById('playerName').value;
+        const grade = document.getElementById('grade').value;
+        const romaji = document.getElementById('romaji').value;
+        const orderId = "ORD-" + Date.now(); // 1回の注文（複数商品）で共通のID
+
+        // カート内の各アイテムにユーザー情報と「商品ID」を紐付けて送信データを作成
+        const payload = cart.map(item => ({
+            orderId: orderId,
+            orderDate: new Date().toLocaleString("ja-JP"),
+            schoolName: schoolName,
+            playerName: playerName,
+            grade: grade,
+            romaji: romaji,
+            itemId: item.productId,
+            itemName: item.itemName,
+            size: item.size,
+            quantity: item.quantity
+        }));
+
+        try {
+            await fetch(GAS_URL, { 
+                method: "POST", 
+                mode: "no-cors", 
+                body: JSON.stringify(payload) 
+            });
+            goToStep(3);
+        } catch (e) { 
+            alert("送信エラーが発生しました。"); 
+            btn.disabled = false; 
+            btn.innerText = "注文を確定する";
+        }
+    }
+</script>
+</body>
+</html>
