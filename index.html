@@ -31,13 +31,14 @@
         }
 
         /* 入力ボックスのデザイン */
-        input[type="text"], input[type="number"], select {
+        input[type="text"], input[type="number"], input[type="tel"], input[type="email"], select {
             width: 100%; padding: 12px 15px; margin-top: 5px; border: 2px solid #e0e0e0; 
             border-radius: 8px; box-sizing: border-box; font-size: 16px; transition: all 0.3s ease;
             background-color: #fdfdfd; outline: none;
         }
         input:focus, select:focus { border-color: #4CAF50; background-color: #fff; box-shadow: 0 0 8px rgba(76, 175, 80, 0.2); }
         label { display: block; font-size: 0.85em; color: #555; font-weight: 600; margin-top: 15px; }
+        .required::after { content: " *必須"; color: #e91e63; font-size: 0.8em; }
 
         /* 商品グリッド */
         .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 20px; }
@@ -67,11 +68,19 @@
             <div class="card">
                 <h3>注文者情報の入力</h3>
                 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
-                    <div><label>選手氏名</label><input type="text" id="playerName" placeholder="例：山田 太郎"></div>
-                    <div><label>学年</label>
-                        <select id="grade"><option>1年</option><option>2年</option><option>3年</option></select>
+                    <div><label class="required">選手氏名</label><input type="text" id="playerName" placeholder="例：山田 太郎"></div>
+                    <div><label class="required">学年</label>
+                        <select id="grade">
+                            <option value="">選択してください</option>
+                            <option value="1年">1年</option>
+                            <option value="2年">2年</option>
+                            <option value="3年">3年</option>
+                        </select>
                     </div>
-                    <div style="grid-column: span 2;"><label>ローマ字表記</label><input type="text" id="romaji" placeholder="例：TARO YAMADA"></div>
+                    <div><label class="required">ローマ字表記</label><input type="text" id="romaji" placeholder="例：TARO YAMADA"></div>
+                    <div><label class="required">電話番号</label><input type="tel" id="tel" placeholder="例：09012345678"></div>
+                    <div style="grid-column: span 2;"><label class="required">メールアドレス</label><input type="email" id="email" placeholder="例：example@mail.com"></div>
+                    <div style="grid-column: span 2;"><label>住所</label><input type="text" id="address" placeholder="例：東京都渋谷区1-2-3 ○○マンション101"></div>
                 </div>
             </div>
 
@@ -86,9 +95,14 @@
         <div id="step2" class="step card">
             <h2>注文内容の最終確認</h2>
             <div style="background:#f9f9f9; padding:20px; border-radius:8px; border-left: 5px solid #4CAF50;">
-                <p><strong>所属学校:</strong> <span class="confirm-school"></span></p>
-                <p><strong>選手氏名:</strong> <span id="confirmName"></span> (<span id="confirmRomaji"></span>)</p>
-                <p><strong>学年:</strong> <span id="confirmGrade"></span></p>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                    <p><strong>所属学校:</strong> <span class="confirm-school"></span></p>
+                    <p><strong>選手氏名:</strong> <span id="confirmName"></span> (<span id="confirmRomaji"></span>)</p>
+                    <p><strong>学年:</strong> <span id="confirmGrade"></span></p>
+                    <p><strong>電話番号:</strong> <span id="confirmTel"></span></p>
+                    <p style="grid-column: span 2;"><strong>メールアドレス:</strong> <span id="confirmEmail"></span></p>
+                    <p style="grid-column: span 2;"><strong>住所:</strong> <span id="confirmAddress"></span></p>
+                </div>
             </div>
             
             <table class="confirm-table">
@@ -112,9 +126,9 @@
 </div>
 
 <script>
-    const Get_GAS_URL = "https://script.google.com/macros/s/AKfycbwjSkydWY0wRVlOgnDqX6TfVHBTjXN57Iq8JWbmgdTXtZ5UWA6JFTFPPBkKrIl_VraQ/exec";
+    const Get_GAS_URL = "https://script.google.com/macros/s/AKfycbx2rmUzjmLYj-q5kQTnPBSrydYpPjUO1Wnx0W3fOrBoXZkbpq-lXLYWfp8OMObiE33M/exec";
     let masterProducts = []; 
-    let cart = []; // 確認画面へ行く瞬間に生成される
+    let cart = []; 
     let schoolName = "";
 
     window.onload = function() {
@@ -137,8 +151,6 @@
             masterProducts.forEach((item, index) => {
                 const sizes = String(item.サイズ).split(",").map(s => s.trim());
                 const sizeOptions = sizes.map(s => `<option value="${s}">${s}</option>`).join("");
-                
-                // 推奨数がある場合のみバッジを表示
                 const recommendTag = item.推奨数 ? `<div class="recommend-badge">推奨：${item.推奨数}</div>` : "";
 
                 const card = document.createElement('div');
@@ -158,13 +170,22 @@
         } catch (e) { container.innerHTML = "<p>通信エラー</p>"; }
     }
 
-    // ステップ遷移（ここで入力を一括スキャン）
     function goToStep(stepNum) {
         if (stepNum === 2) {
+            // バリデーション項目
             const name = document.getElementById('playerName').value;
-            if (!name) { alert("選手氏名を入力してください。"); return; }
+            const grade = document.getElementById('grade').value;
+            const romaji = document.getElementById('romaji').value;
+            const tel = document.getElementById('tel').value;
+            const email = document.getElementById('email').value;
 
-            // カートを再構築（数量が1以上のものを収集）
+            if (!name) { alert("選手氏名を入力してください。"); return; }
+            if (!grade) { alert("学年を選択してください。"); return; }
+            if (!romaji) { alert("ローマ字表記を入力してください。"); return; }
+            if (!tel) { alert("電話番号を入力してください。"); return; }
+            if (!email) { alert("メールアドレスを入力してください。"); return; }
+
+            // カートを再構築
             cart = [];
             masterProducts.forEach((product, index) => {
                 const qty = parseInt(document.getElementById(`qty-${index}`).value);
@@ -182,24 +203,28 @@
 
             if (cart.length === 0) { alert("商品が選択されていません。数量を入力してください。"); return; }
             
-            renderConfirmation(name);
+            renderConfirmation();
         }
         document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
         document.getElementById('step' + stepNum).classList.add('active');
         window.scrollTo(0,0);
     }
 
-    function renderConfirmation(name) {
-        document.getElementById('confirmName').innerText = name;
+    function renderConfirmation() {
+        document.getElementById('confirmName').innerText = document.getElementById('playerName').value;
         document.getElementById('confirmGrade').innerText = document.getElementById('grade').value;
         document.getElementById('confirmRomaji').innerText = document.getElementById('romaji').value;
+        document.getElementById('confirmTel').innerText = document.getElementById('tel').value;
+        document.getElementById('confirmEmail').innerText = document.getElementById('email').value;
+        document.getElementById('confirmAddress').innerText = document.getElementById('address').value || "未入力";
+
         const tbody = document.getElementById('confirmItems');
         tbody.innerHTML = cart.map(item => `
             <tr><td>${item.itemName}</td><td>${item.size}</td><td>${item.quantity}</td><td>¥${(item.price * item.quantity).toLocaleString()}</td></tr>
         `).join("");
     }
 
-    const GAS_URL = "https://script.google.com/macros/s/AKfycbzx6l25G4jKelrcw2HTz2wx3qL5yL7PN8EV47kBH8ZLGYwziYfM7IgPHtu-H7fTCenWaA/exec";
+    const GAS_URL = "https://script.google.com/macros/s/AKfycbwJFbq24EWXRf3Sxl87Z3wkPDOJZU8LYW0ye4cu8-1haW2okKeC2BKkivTPutj4dpIY/exec";
 
     async function submitOrder() {
         const btn = document.getElementById('sendBtn');
@@ -209,9 +234,11 @@
         const playerName = document.getElementById('playerName').value;
         const grade = document.getElementById('grade').value;
         const romaji = document.getElementById('romaji').value;
-        const orderId = "ORD-" + Date.now(); // 1回の注文（複数商品）で共通のID
+        const tel = document.getElementById('tel').value;
+        const email = document.getElementById('email').value;
+        const address = document.getElementById('address').value;
+        const orderId = "ORD-" + Date.now();
 
-        // カート内の各アイテムにユーザー情報と「商品ID」を紐付けて送信データを作成
         const payload = cart.map(item => ({
             orderId: orderId,
             orderDate: new Date().toLocaleString("ja-JP"),
@@ -219,6 +246,9 @@
             playerName: playerName,
             grade: grade,
             romaji: romaji,
+            tel: tel,
+            email: email,
+            address: address,
             itemId: item.productId,
             itemName: item.itemName,
             size: item.size,
