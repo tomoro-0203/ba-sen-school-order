@@ -50,6 +50,21 @@
         .confirm-table { width: 100%; border-collapse: collapse; margin: 15px 0; }
         .confirm-table th, .confirm-table td { border-bottom: 1px solid #ddd; padding: 10px; text-align: left; }
 
+        /* LINEバナー用のスタイル */
+        .line-banner-container {
+            background-color: #f8fff8;
+            border: 2px dashed #4CAF50;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            text-align: center;
+        }
+        .line-banner-text {
+            font-size: 0.95em;
+            margin-bottom: 15px;
+            color: #333;
+        }
+
         footer {
             margin-top: 40px;
             padding: 30px 20px;
@@ -122,7 +137,24 @@
             <h1 style="color:#4CAF50; font-size: 3em;">✔</h1>
             <h2>注文を受け付けました</h2>
             <p><span class="confirm-school"></span> の注文として保存されました。</p>
+
+            <div class="line-banner-container">
+                <p class="line-banner-text">
+                    ご注文後にLINEでのやり取りをご希望の場合は当店公式LINEを友達追加して、氏名・チーム名をお送り下さい。<br>
+                    ご請求書の送付やご質問などの対応が可能です。是非ご利用下さい。
+                </p>
+                <a href="https://lin.ee/AR5a78nI"><img src="https://scdn.line-apps.com/n/line_add_friends/btn/ja.png" alt="友だち追加" height="36" border="0"></a>
+            </div>
+
             <button onclick="location.reload()" class="btn-back">新しく注文する</button>
+        </div>
+
+        <div class="line-banner-container" style="margin: 40px auto; max-width: 800px;">
+            <p class="line-banner-text">
+                ご注文後にLINEでのやり取りをご希望の場合は当店公式LINEを友達追加して、氏名・チーム名をお送り下さい。<br>
+                ご請求書の送付やご質問などの対応が可能です。是非ご利用下さい。
+            </p>
+            <a href="https://lin.ee/AR5a78nI"><img src="https://scdn.line-apps.com/n/line_add_friends/btn/ja.png" alt="友だち追加" height="36" border="0"></a>
         </div>
 
         <footer>
@@ -139,6 +171,7 @@
 </div>
 
 <script>
+    // --- スクリプト部分は変更なし ---
     const Get_GAS_URL = "https://script.google.com/macros/s/AKfycbx2rmUzjmLYj-q5kQTnPBSrydYpPjUO1Wnx0W3fOrBoXZkbpq-lXLYWfp8OMObiE33M/exec";
     let masterProducts = []; 
     let cart = []; 
@@ -166,10 +199,7 @@
                 const sizeOptions = sizes.map(s => `<option value="${s}">${s}</option>`).join("");
                 const recommendTag = item.推奨数 ? `<div class="recommend-badge">推奨：${item.推奨数}</div>` : "";
                 
-                // 画像URL
                 const imgSource = item.画像URL ? `https://drive.google.com/thumbnail?id=${item.画像URL}` : 'https://via.placeholder.com/200?text=No+Image';
-                
-                // 商品マスタからの備考をプレースホルダーに設定
                 const placeholderText = item.備考 || "特記事項があれば入力してください";
 
                 const card = document.createElement('div');
@@ -273,7 +303,7 @@
             itemName: item.itemName,
             size: item.size,
             quantity: item.quantity,
-            itemNote: item.note // 各商品の備考を送信データに追加
+            itemNote: item.note
         }));
 
         try {
