@@ -37,20 +37,15 @@
         label { display: block; font-size: 0.85em; color: #555; font-weight: 600; margin-top: 15px; }
         .required::after { content: " *必須"; color: #e91e63; font-size: 0.8em; }
 
-        /* 入力フォームのグリッド調整 */
         .form-grid {
             display: grid;
-            grid-template-columns: 1fr; /* デフォルトは1列（スマホ用） */
+            grid-template-columns: 1fr;
             gap: 15px;
         }
 
         @media (min-width: 600px) {
-            .form-grid {
-                grid-template-columns: 1fr 1fr; /* PC/タブレットでは2列 */
-            }
-            .full-width {
-                grid-column: span 2;
-            }
+            .form-grid { grid-template-columns: 1fr 1fr; }
+            .full-width { grid-column: span 2; }
         }
 
         .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
@@ -66,43 +61,146 @@
         .confirm-table { width: 100%; border-collapse: collapse; margin: 15px 0; }
         .confirm-table th, .confirm-table td { border-bottom: 1px solid #ddd; padding: 10px; text-align: left; }
 
-        .line-banner-container {
-            background-color: #f8fff8;
-            border: 2px dashed #4CAF50;
-            padding: 20px;
-            border-radius: 10px;
-            margin: 20px 0;
-            text-align: center;
+        /* --- フローティングLINEバナーのスタイル --- */
+        .line-floating-container {
+            position: fixed;
+            bottom: 100px;
+            right: 20px;
+            z-index: 9999;
+            display: flex;
+            align-items: flex-end;
+            flex-direction: column;
         }
-        .line-banner-text {
-            font-size: 0.95em;
-            margin-bottom: 15px;
+        
+        .line-floating-btn {
+            background-color: #fff;
+            padding: 12px 14px;
+            border-radius: 16px;
+            box-shadow: 0 6px 25px rgba(0,0,0,0.18);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border: 2px solid #06C755;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+            max-width: 380px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .line-floating-btn.minimized {
+            padding: 0;
+            width: 70px; 
+            height: 70px;
+            border-radius: 14px;
+            justify-content: center;
+        }
+
+        .line-floating-btn.minimized .line-floating-text-wrap,
+        .line-floating-btn.minimized .close-btn-ui {
+            display: none;
+        }
+
+        .line-floating-btn:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.22);
+        }
+
+        .line-floating-text-wrap {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .line-floating-text {
             color: #333;
+            font-size: 11px;
+            font-weight: bold;
+            line-height: 1.5;
+            white-space: normal;
+        }
+
+        .line-floating-text strong {
+            color: #06C755;
+            display: block;
+            font-size: 15px;
+            margin-bottom: 4px;
+        }
+
+        .close-btn-ui {
+            background: #e0e0e0;
+            color: #555;
+            width: 30px; /* ボタンを大きく */
+            height: 30px; /* ボタンを大きく */
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px; /* アイコンを大きく */
+            font-weight: bold;
+            cursor: pointer;
+            flex-shrink: 0;
+            transition: all 0.2s;
+            margin-left: 8px;
+            align-self: flex-start;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .close-btn-ui:hover { background: #d0d0d0; color: #333; transform: scale(1.1); }
+
+        #lineIconImg {
+            width: 60px;
+            height: 60px;
+            flex-shrink: 0;
+            object-fit: contain;
+            transition: all 0.3s;
+        }
+        .minimized #lineIconImg {
+            width: 70px;
+            height: 70px;
+        }
+
+        @media (max-width: 600px) {
+            .line-floating-container { bottom: 85px; right: 15px; }
+            .line-floating-btn { max-width: 300px; padding: 10px 12px; }
+            .line-floating-text { font-size: 10px; line-height: 1.4; }
+            .line-floating-text strong { font-size: 13px; }
+            #lineIconImg { width: 55px; height: 55px; }
+            .line-floating-btn.minimized { width: 65px; height: 65px; }
+            .minimized #lineIconImg { width: 65px; height: 65px; }
+            .close-btn-ui { width: 26px; height: 26px; font-size: 18px; }
         }
 
         footer {
-            margin-top: 40px;
-            padding: 30px 20px;
-            background-color: #fff;
-            border-top: 1px solid #eee;
-            text-align: center;
-            font-size: 0.9em;
-            color: #666;
-            border-radius: 12px 12px 0 0;
+            margin-top: 40px; padding: 30px 20px; background-color: #fff; border-top: 1px solid #eee;
+            text-align: center; font-size: 0.9em; color: #666; border-radius: 12px 12px 0 0;
         }
         .footer-title { font-weight: bold; color: #333; margin-bottom: 10px; display: block; }
-        .footer-contact { margin: 5px 0; }
     </style>
 </head>
 <body>
 
 <div class="container">
+    <!-- LINEフローティングバナー -->
+    <div class="line-floating-container">
+        <div class="line-floating-btn" id="lineBtn">
+            <img src="https://scdn.line-apps.com/n/line_add_friends/btn/ja.png" id="lineIconImg" alt="LINE" border="0">
+            <div class="line-floating-text-wrap">
+                <div class="line-floating-text">
+                    <strong>公式LINEを友達追加</strong>
+                    ご注文後にLINEでのやり取りをご希望の場合は当店公式LINEを友達追加して、氏名・チーム名をお送り下さい。<br>ご請求書の送付やご質問などの対応が可能です。<br>是非ご利用下さい。
+                </div>
+            </div>
+            <div class="close-btn-ui" id="minimizeBtn" title="最小化">×</div>
+        </div>
+    </div>
+
     <div id="mainContent">
         <div class="school-info-banner">
             <p>Order Form</p>
             <h1 id="schoolNameDisplay">読み込み中...</h1>
         </div>
 
+        <!-- STEP 1 -->
         <div id="step1" class="step active">
             <div class="card">
                 <h3>注文者情報の入力</h3>
@@ -124,6 +222,7 @@
             </div>
         </div>
 
+        <!-- STEP 2 -->
         <div id="step2" class="step card">
             <h2>注文内容の最終確認</h2>
             <div style="background:#f9f9f9; padding:20px; border-radius:8px; border-left: 5px solid #4CAF50;">
@@ -148,38 +247,19 @@
             </div>
         </div>
 
+        <!-- STEP 3 -->
         <div id="step3" class="step card" style="text-align:center; padding:60px 20px;">
             <h1 style="color:#4CAF50; font-size: 3em;">✔</h1>
             <h2>注文を受け付けました</h2>
             <p><span class="confirm-school"></span> の注文として保存されました。</p>
-
-            <div class="line-banner-container">
-                <p class="line-banner-text">
-                    ご注文後にLINEでのやり取りをご希望の場合は当店公式LINEを友達追加して、氏名・チーム名をお送り下さい。<br>
-                    ご請求書の送付やご質問などの対応が可能です。是非ご利用下さい。
-                </p>
-                <a href="https://lin.ee/AR5a78nI"><img src="https://scdn.line-apps.com/n/line_add_friends/btn/ja.png" alt="友だち追加" height="36" border="0"></a>
-            </div>
-
-            <button onclick="location.reload()" class="btn-back">新しく注文する</button>
-        </div>
-
-        <div class="line-banner-container" style="margin: 40px auto; max-width: 800px;">
-            <p class="line-banner-text">
-                ご注文後にLINEでのやり取りをご希望の場合は当店公式LINEを友達追加して、氏名・チーム名をお送り下さい。<br>
-                ご請求書の送付やご質問などの対応が可能です。是非ご利用下さい。
-            </p>
-            <a href="https://lin.ee/AR5a78nI"><img src="https://scdn.line-apps.com/n/line_add_friends/btn/ja.png" alt="友だち追加" height="36" border="0"></a>
+            <button onclick="location.reload()" class="btn-back" style="margin-top: 20px;">新しく注文する</button>
         </div>
 
         <footer>
             <span class="footer-title">【お問い合わせ先】</span>
             <div class="footer-contact"><strong>株式会社BA-SEN</strong></div>
             <div class="footer-contact">〒278-0022 千葉県野田市山崎1897-3</div>
-            <div class="footer-contact">TEL：04-7161-1140</div>
-            <div class="footer-contact">Email：ba_sen8915@yahoo.co.jp</div>
-            <div class="footer-contact">LINEID：basen8915</div>
-            <div class="footer-contact" style="margin-top:10px;">担当者：菊田正志</div>
+            <div class="footer-contact">TEL：04-7161-1140 / Email：ba_sen8915@yahoo.co.jp</div>
         </footer>
         <div style="height: 100px;"></div>
     </div>
@@ -187,9 +267,28 @@
 
 <script>
     const Get_GAS_URL = "https://script.google.com/macros/s/AKfycbx2rmUzjmLYj-q5kQTnPBSrydYpPjUO1Wnx0W3fOrBoXZkbpq-lXLYWfp8OMObiE33M/exec";
+    const GAS_URL = "https://script.google.com/macros/s/AKfycbzYtTaFUC7_kuVPk09IIfM4kM3d_4l85IgK4YXF9F0DX3HpSDf6oKa_5Im6zZ9RiUMu/exec";
+    const LINE_URL = "https://lin.ee/AR5a78nI";
+    
     let masterProducts = []; 
     let cart = []; 
     let schoolName = "";
+
+    const lineBtn = document.getElementById('lineBtn');
+    const minimizeBtn = document.getElementById('minimizeBtn');
+
+    minimizeBtn.onclick = function(e) {
+        e.stopPropagation();
+        lineBtn.classList.add('minimized');
+    };
+
+    lineBtn.onclick = function() {
+        if (this.classList.contains('minimized')) {
+            this.classList.remove('minimized');
+        } else {
+            window.open(LINE_URL, '_blank');
+        }
+    };
 
     window.onload = function() {
         const urlParams = new URLSearchParams(window.location.search);
@@ -207,14 +306,11 @@
             const response = await fetch(`${Get_GAS_URL}?school=${encodeURIComponent(schoolName)}`);
             masterProducts = await response.json();
             container.innerHTML = "";
-
             masterProducts.forEach((item, index) => {
                 const sizes = String(item.サイズ || "").split(",").map(s => s.trim());
                 const sizeOptions = sizes.map(s => `<option value="${s}">${s}</option>`).join("");
                 const recommendTag = item.推奨数 ? `<div class="recommend-badge">推奨：${item.推奨数}</div>` : "";
-                
                 const imgSource = item.画像URL ? `https://drive.google.com/thumbnail?id=${item.画像URL}` : 'https://via.placeholder.com/200?text=No+Image';
-                const placeholderText = item.備考 || "特記事項があれば入力してください";
 
                 const card = document.createElement('div');
                 card.className = 'product-card';
@@ -226,48 +322,35 @@
                     <div style="margin-top:auto;">
                         <label>サイズ</label><select id="size-${index}">${sizeOptions}</select>
                         <label>数量</label><input type="number" id="qty-${index}" value="0" min="0">
-                        <label>備考</label>
-                        <textarea id="note-${index}" rows="2" placeholder="${placeholderText}"></textarea>
+                        <label>備考</label><textarea id="note-${index}" rows="2" placeholder="特記事項があれば入力"></textarea>
                     </div>
                 `;
                 container.appendChild(card);
             });
-        } catch (e) { container.innerHTML = "<p>通信エラー</p>"; }
+        } catch (e) { container.innerHTML = "<p>商品データの取得に失敗しました</p>"; }
     }
 
     function goToStep(stepNum) {
         if (stepNum === 2) {
             const name = document.getElementById('playerName').value.trim();
-            const grade = document.getElementById('grade').value.trim();
-            const romaji = document.getElementById('romaji').value.trim();
-            const tel = document.getElementById('tel').value.trim();
             const email = document.getElementById('email').value.trim();
-
-            if (!name || !grade || !romaji || !tel || !email) { 
-                alert("必須項目を入力してください。"); 
-                return; 
-            }
-
+            if (!name || !email) { alert("必須項目を入力してください。"); return; }
+            
             cart = [];
             masterProducts.forEach((product, index) => {
-                const qtyInput = document.getElementById(`qty-${index}`);
-                const qty = parseInt(qtyInput.value);
-                const size = document.getElementById(`size-${index}`).value;
-                const note = document.getElementById(`note-${index}`).value.trim();
-                
+                const qty = parseInt(document.getElementById(`qty-${index}`).value);
                 if (qty > 0) {
                     cart.push({
                         productId: product.商品ID,
                         itemName: product.商品名,
-                        size: size,
+                        size: document.getElementById(`size-${index}`).value,
                         quantity: qty,
                         price: product.価格,
-                        note: note
+                        note: document.getElementById(`note-${index}`).value.trim()
                     });
                 }
             });
-
-            if (cart.length === 0) { alert("商品が選択されていません。数量を入力してください。"); return; }
+            if (cart.length === 0) { alert("商品を選択してください。"); return; }
             renderConfirmation();
         }
         document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
@@ -282,29 +365,23 @@
         document.getElementById('confirmTel').innerText = document.getElementById('tel').value;
         document.getElementById('confirmEmail').innerText = document.getElementById('email').value;
         document.getElementById('confirmAddress').innerText = document.getElementById('address').value || "未入力";
-
         const tbody = document.getElementById('confirmItems');
         tbody.innerHTML = cart.map(item => `
             <tr>
                 <td>${item.itemName}</td>
                 <td>${item.size}</td>
                 <td>${item.quantity}</td>
-                <td style="font-size: 0.8em;">${item.note || "-"}</td>
+                <td>${item.note || "-"}</td>
                 <td>¥${(item.price * item.quantity).toLocaleString()}</td>
             </tr>
         `).join("");
     }
 
-    const GAS_URL = "https://script.google.com/macros/s/AKfycbzYtTaFUC7_kuVPk09IIfM4kM3d_4l85IgK4YXF9F0DX3HpSDf6oKa_5Im6zZ9RiUMu/exec";
-
     async function submitOrder() {
         const btn = document.getElementById('sendBtn');
-        btn.disabled = true; 
-        btn.innerText = "送信中...";
-
-        const orderId = "ORD-" + Date.now();
+        btn.disabled = true; btn.innerText = "送信中...";
         const payload = cart.map(item => ({
-            orderId: orderId,
+            orderId: "ORD-" + Date.now(),
             orderDate: new Date().toLocaleString("ja-JP"),
             schoolName: schoolName,
             playerName: document.getElementById('playerName').value,
@@ -319,19 +396,10 @@
             quantity: item.quantity,
             itemNote: item.note
         }));
-
         try {
-            await fetch(GAS_URL, { 
-                method: "POST", 
-                mode: "no-cors", 
-                body: JSON.stringify(payload) 
-            });
+            await fetch(GAS_URL, { method: "POST", mode: "no-cors", body: JSON.stringify(payload) });
             goToStep(3);
-        } catch (e) { 
-            alert("送信エラーが発生しました。"); 
-            btn.disabled = false; 
-            btn.innerText = "注文を確定する";
-        }
+        } catch (e) { alert("送信エラー"); btn.disabled = false; btn.innerText = "確定する"; }
     }
 </script>
 </body>
