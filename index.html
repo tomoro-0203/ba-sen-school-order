@@ -37,6 +37,22 @@
         label { display: block; font-size: 0.85em; color: #555; font-weight: 600; margin-top: 15px; }
         .required::after { content: " *必須"; color: #e91e63; font-size: 0.8em; }
 
+        /* 入力フォームのグリッド調整 */
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr; /* デフォルトは1列（スマホ用） */
+            gap: 15px;
+        }
+
+        @media (min-width: 600px) {
+            .form-grid {
+                grid-template-columns: 1fr 1fr; /* PC/タブレットでは2列 */
+            }
+            .full-width {
+                grid-column: span 2;
+            }
+        }
+
         .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
         .product-card { background: white; border: 1px solid #eee; border-radius: 10px; padding: 15px; display: flex; flex-direction: column; position: relative; }
         .product-img { width: 100%; height: 180px; object-fit: contain; background: #f9f9f9; border-radius: 5px; margin-bottom: 10px; }
@@ -50,7 +66,6 @@
         .confirm-table { width: 100%; border-collapse: collapse; margin: 15px 0; }
         .confirm-table th, .confirm-table td { border-bottom: 1px solid #ddd; padding: 10px; text-align: left; }
 
-        /* LINEバナー用のスタイル */
         .line-banner-container {
             background-color: #f8fff8;
             border: 2px dashed #4CAF50;
@@ -91,13 +106,13 @@
         <div id="step1" class="step active">
             <div class="card">
                 <h3>注文者情報の入力</h3>
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+                <div class="form-grid">
                     <div><label class="required">選手氏名</label><input type="text" id="playerName" placeholder="例：山田 太郎"></div>
                     <div><label class="required">学年</label><input type="text" id="grade" placeholder="例：1年"></div>
                     <div><label class="required">ローマ字表記</label><input type="text" id="romaji" placeholder="例：TARO YAMADA"></div>
                     <div><label class="required">電話番号</label><input type="tel" id="tel" placeholder="例：09012345678"></div>
-                    <div style="grid-column: span 2;"><label class="required">メールアドレス</label><input type="email" id="email" placeholder="例：example@mail.com"></div>
-                    <div style="grid-column: span 2;"><label>住所</label><input type="text" id="address" placeholder="例：千葉県野田市..."></div>
+                    <div class="full-width"><label class="required">メールアドレス</label><input type="email" id="email" placeholder="例：example@mail.com"></div>
+                    <div class="full-width"><label>住所</label><input type="text" id="address" placeholder="例：千葉県野田市..."></div>
                 </div>
             </div>
 
@@ -112,13 +127,13 @@
         <div id="step2" class="step card">
             <h2>注文内容の最終確認</h2>
             <div style="background:#f9f9f9; padding:20px; border-radius:8px; border-left: 5px solid #4CAF50;">
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                <div class="form-grid">
                     <p><strong>所属学校:</strong> <span class="confirm-school"></span></p>
                     <p><strong>選手氏名:</strong> <span id="confirmName"></span> (<span id="confirmRomaji"></span>)</p>
                     <p><strong>学年:</strong> <span id="confirmGrade"></span></p>
                     <p><strong>電話番号:</strong> <span id="confirmTel"></span></p>
-                    <p style="grid-column: span 2;"><strong>メールアドレス:</strong> <span id="confirmEmail"></span></p>
-                    <p style="grid-column: span 2;"><strong>住所:</strong> <span id="confirmAddress"></span></p>
+                    <p class="full-width"><strong>メールアドレス:</strong> <span id="confirmEmail"></span></p>
+                    <p class="full-width"><strong>住所:</strong> <span id="confirmAddress"></span></p>
                 </div>
             </div>
             
@@ -171,7 +186,6 @@
 </div>
 
 <script>
-    // --- スクリプト部分は変更なし ---
     const Get_GAS_URL = "https://script.google.com/macros/s/AKfycbx2rmUzjmLYj-q5kQTnPBSrydYpPjUO1Wnx0W3fOrBoXZkbpq-lXLYWfp8OMObiE33M/exec";
     let masterProducts = []; 
     let cart = []; 
