@@ -5,9 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>注文システム</title>
     <style>
-        body { font-family: sans-serif; background-color: #f0f2f5; margin: 0; padding: 20px; color: #333; line-height: 1.6; }
+        body { font-family: sans-serif; background-color: #f0f2f5; margin: 0; padding: 15px; color: #333; line-height: 1.6; }
         .container { max-width: 1000px; margin: auto; }
-        .card { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); margin-bottom: 20px; }
+        .card { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); margin-bottom: 20px; }
         .step { display: none; }
         .step.active { display: block; }
         
@@ -46,6 +46,8 @@
         @media (min-width: 600px) {
             .form-grid { grid-template-columns: 1fr 1fr; }
             .full-width { grid-column: span 2; }
+            body { padding: 20px; }
+            .card { padding: 25px; }
         }
 
         .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
@@ -55,15 +57,49 @@
         .product-name-display { font-weight: bold; white-space: pre-wrap; margin: 10px 0; min-height: 3em; }
 
         .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: white; padding: 15px 20px; border-top: 1px solid #ddd; text-align: center; z-index: 100; }
-        button { padding: 12px 30px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 1.1em; }
+        
+        button { padding: 12px 30px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 1.1em; transition: opacity 0.2s; }
+        button:disabled { opacity: 0.6; cursor: not-allowed; }
         .btn-next { background-color: #4CAF50; color: white; width: 100%; max-width: 400px; }
-        .btn-back { background-color: #9e9e9e; color: white; }
+        .btn-back { background-color: #9e9e9e; color: white; width: 100%; }
 
-        .confirm-table { width: 100%; border-collapse: collapse; margin: 15px 0; }
+        .confirm-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        @media (min-width: 600px) {
+            .confirm-actions {
+                flex-direction: row-reverse;
+                justify-content: center;
+                gap: 20px;
+            }
+            .confirm-actions button {
+                flex: 1;
+                max-width: 300px;
+                width: auto;
+            }
+        }
+
+        .confirm-table { width: 100%; border-collapse: collapse; margin: 15px 0; font-size: 15px; }
         .confirm-table th, .confirm-table td { border-bottom: 1px solid #ddd; padding: 10px; text-align: left; }
-        .confirm-item-name { white-space: pre-wrap; font-size: 0.9em; }
+        .confirm-item-name { white-space: pre-wrap; font-size: 0.9em; font-weight: bold; }
 
-        /* --- フローティングLINEバナー --- */
+        @media (max-width: 600px) {
+            .confirm-table thead { display: none; }
+            .confirm-table, .confirm-table tbody, .confirm-table tr, .confirm-table td { display: block; width: 100%; box-sizing: border-box; }
+            .confirm-table tr { margin-bottom: 15px; border: 1px solid #eee; border-radius: 8px; padding: 10px; background: #fff; }
+            .confirm-table td { border: none; padding: 5px 0; display: flex; justify-content: space-between; align-items: flex-start; }
+            .confirm-table td::before { content: attr(data-label); font-weight: bold; color: #666; margin-right: 10px; flex-shrink: 0; }
+            .confirm-table td.confirm-item-name { display: block; text-align: left; border-bottom: 1px solid #f5f5f5; padding-bottom: 8px; margin-bottom: 5px; }
+            .confirm-table td.confirm-item-name::before { display: block; margin-bottom: 4px; }
+            
+            .confirm-table tfoot tr { display: flex; justify-content: flex-end; border: none; padding: 0; }
+            .confirm-table tfoot td, .confirm-table tfoot th { display: block; width: auto; }
+        }
+
         .line-floating-container { position: fixed; bottom: 100px; right: 20px; z-index: 9999; display: flex; align-items: flex-end; flex-direction: column; }
         .line-floating-btn { background-color: #fff; padding: 12px 14px; border-radius: 16px; box-shadow: 0 6px 25px rgba(0,0,0,0.18); display: flex; align-items: center; gap: 12px; border: 2px solid #06C755; cursor: pointer; transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1); max-width: 380px; overflow: hidden; position: relative; }
         .line-floating-btn.minimized { padding: 0; width: 70px; height: 70px; border-radius: 14px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); justify-content: center; }
@@ -107,7 +143,6 @@
             <h1 id="schoolNameDisplay">読み込み中...</h1>
         </div>
 
-        <!-- STEP 1 -->
         <div id="step1" class="step active">
             <div class="card">
                 <h3>注文者情報の入力</h3>
@@ -130,10 +165,9 @@
             </div>
         </div>
 
-        <!-- STEP 2 -->
         <div id="step2" class="step card">
-            <h2>注文内容の最終確認</h2>
-            <div style="background:#f9f9f9; padding:20px; border-radius:8px; border-left: 5px solid #4CAF50;">
+            <h3>注文内容の最終確認</h3>
+            <div style="background:#f9f9f9; padding:15px; border-radius:8px; border-left: 5px solid #4CAF50; font-size: 14px;">
                 <div class="form-grid">
                     <p><strong>所属学校:</strong> <span class="confirm-school"></span></p>
                     <p><strong>選手氏名:</strong> <span id="confirmName"></span> (<span id="confirmRomaji"></span>)</p>
@@ -151,23 +185,22 @@
                 <tfoot>
                     <tr>
                         <th colspan="4" style="text-align: right; padding: 15px;">合計金額</th>
-                        <th style="font-size: 1.2em; color: #e91e63;"><span id="confirmTotal"></span></th>
+                        <th style="font-size: 1.3em; color: #e91e63; text-align: right;"><span id="confirmTotal"></span></th>
                     </tr>
                 </tfoot>
             </table>
 
-            <div style="display:flex; gap:10px; margin-top:30px;">
-                <button class="btn-back" onclick="goToStep(1)" style="flex:1;">修正する</button>
-                <button class="btn-next" id="sendBtn" onclick="submitOrder()" style="flex:2;">注文を確定する</button>
+            <div class="confirm-actions">
+                <button class="btn-next" id="sendBtn" onclick="submitOrder()">注文を確定する</button>
+                <button class="btn-back" onclick="goToStep(1)">内容を修正する</button>
             </div>
         </div>
 
-        <!-- STEP 3 -->
         <div id="step3" class="step card" style="text-align:center; padding:60px 20px;">
             <h1 style="color:#4CAF50; font-size: 3em;">✔</h1>
             <h2>注文を受け付けました</h2>
             <p><span class="confirm-school"></span> の注文として保存されました。</p>
-            <button onclick="location.reload()" class="btn-back" style="margin-top: 20px;">新しく注文する</button>
+            <button onclick="location.reload()" class="btn-back" style="margin-top: 20px; max-width: 300px; display: inline-block;">新しく注文する</button>
         </div>
 
         <footer>
@@ -199,14 +232,14 @@
 
     window.onload = function() {
         const urlParams = new URLSearchParams(window.location.search);
-        schoolName = urlParams.get('school');
+        schoolName = urlParams.get('school'); 
         
         if (!schoolName) {
             document.getElementById('schoolNameDisplay').innerText = "学校名が指定されていません";
-            document.getElementById('productContainer').innerHTML = "<p>URLのパラメータを確認してください。</p>";
+            document.getElementById('productContainer').innerHTML = "<p style='color:red;'>URLに学校名が含まれていません。正しいURLからアクセスしてください。</p>";
             return;
         }
-
+        
         document.getElementById('schoolNameDisplay').innerText = schoolName;
         document.querySelectorAll('.confirm-school').forEach(el => el.innerText = schoolName);
         loadProducts();
@@ -221,40 +254,44 @@
             masterProducts = await response.json();
             
             if (!masterProducts || masterProducts.length === 0) {
-                container.innerHTML = "<p>該当する商品データが見つかりませんでした。</p>";
+                container.innerHTML = "<p>該当する商品が見つかりませんでした。</p>";
                 return;
             }
-
-            container.innerHTML = "";
-            masterProducts.forEach((item, index) => {
-                // 商品名(1), 商品名2, 商品名3, 商品名4を改行で結合
-                const nameParts = [item.商品名, item.商品名2, item.商品名3, item.商品名4].filter(p => p && p.trim() !== "");
-                const combinedName = nameParts.join("\n");
-                
-                const sizes = String(item.サイズ || "").split(",").map(s => s.trim());
-                const sizeOptions = sizes.map(s => `<option value="${s}">${s}</option>`).join("");
-                const recommendTag = item.推奨数 ? `<div class="recommend-badge">推奨：${item.推奨数}</div>` : "";
-                const imgSource = item.画像URL ? `https://drive.google.com/thumbnail?id=${item.画像URL}` : 'https://via.placeholder.com/200?text=No+Image';
-
-                const card = document.createElement('div');
-                card.className = 'product-card';
-                card.innerHTML = `
-                    <img src="${imgSource}" class="product-img" onerror="this.src='https://via.placeholder.com/200?text=Error'">
-                    ${recommendTag}
-                    <div class="product-name-display">${combinedName}</div>
-                    <p class="price">¥${Number(item.価格).toLocaleString()}</p>
-                    <div style="margin-top:auto;">
-                        <label>サイズ</label><select id="size-${index}">${sizeOptions}</select>
-                        <label>数量</label><input type="number" id="qty-${index}" value="0" min="0">
-                        <label>備考</label>
-                        <textarea id="note-${index}" rows="2" placeholder="備考を入力"></textarea>
-                    </div>
-                `;
-                container.appendChild(card);
-            });
+            renderProducts(masterProducts);
         } catch (e) {
-            container.innerHTML = "<p>商品データの取得に失敗しました。ネットワーク環境を確認してください。</p>";
+            container.innerHTML = "<p style='color:red;'>データの読み込みに失敗しました。時間をおいて再度お試しください。</p>";
         }
+    }
+
+    function renderProducts(products) {
+        const container = document.getElementById('productContainer');
+        container.innerHTML = "";
+        
+        products.forEach((item, index) => {
+            const nameParts = [item.商品名, item.商品名2, item.商品名3, item.商品名4].filter(p => p && p.trim() !== "");
+            const combinedName = nameParts.join("\n");
+            
+            const sizes = String(item.サイズ || "").split(",").map(s => s.trim());
+            const sizeOptions = sizes.map(s => `<option value="${s}">${s}</option>`).join("");
+            const recommendTag = item.推奨数 ? `<div class="recommend-badge">推奨：${item.推奨数}</div>` : "";
+            const imgSource = item.画像URL ? `https://drive.google.com/thumbnail?id=${item.画像URL}` : 'https://via.placeholder.com/200?text=No+Image';
+
+            const card = document.createElement('div');
+            card.className = 'product-card';
+            card.innerHTML = `
+                <img src="${imgSource}" class="product-img" onerror="this.src='https://via.placeholder.com/200?text=Error'">
+                ${recommendTag}
+                <div class="product-name-display">${combinedName}</div>
+                <p class="price">¥${Number(item.価格).toLocaleString()}</p>
+                <div style="margin-top:auto;">
+                    <label>サイズ</label><select id="size-${index}">${sizeOptions}</select>
+                    <label>数量</label><input type="number" id="qty-${index}" value="0" min="0">
+                    <label>備考</label>
+                    <textarea id="note-${index}" rows="2" placeholder="備考を入力"></textarea>
+                </div>
+            `;
+            container.appendChild(card);
+        });
     }
 
     function goToStep(stepNum) {
@@ -266,7 +303,9 @@
             
             cart = [];
             masterProducts.forEach((product, index) => {
-                const qty = parseInt(document.getElementById(`qty-${index}`).value);
+                const qtyElement = document.getElementById(`qty-${index}`);
+                if (!qtyElement) return;
+                const qty = parseInt(qtyElement.value);
                 if (qty > 0) {
                     const nameParts = [product.商品名, product.商品名2, product.商品名3, product.商品名4].filter(p => p && p.trim() !== "");
                     cart.push({
@@ -303,11 +342,11 @@
             total += subtotal;
             return `
                 <tr>
-                    <td class="confirm-item-name">${item.itemName}</td>
-                    <td>${item.size}</td>
-                    <td>${item.quantity}</td>
-                    <td>${item.note || "-"}</td>
-                    <td>¥${subtotal.toLocaleString()}</td>
+                    <td class="confirm-item-name" data-label="商品名">${item.itemName}</td>
+                    <td data-label="サイズ">${item.size}</td>
+                    <td data-label="数量">${item.quantity}</td>
+                    <td data-label="備考">${item.note || "-"}</td>
+                    <td data-label="小計">¥${subtotal.toLocaleString()}</td>
                 </tr>
             `;
         }).join("");
