@@ -214,7 +214,7 @@
 
 <script>
     const Get_GAS_URL = "https://script.google.com/macros/s/AKfycbx2rmUzjmLYj-q5kQTnPBSrydYpPjUO1Wnx0W3fOrBoXZkbpq-lXLYWfp8OMObiE33M/exec";
-    const GAS_URL = "https://script.google.com/macros/s/AKfycbzCcHLH0ochAUTqW1HfYgx72wYYbhJ8Trkx2SnKIwehsUPgH-ec3n5Gsjrh6qThlRwQ-A/exec";
+    const GAS_URL = "https://script.google.com/macros/s/AKfycbwqsjEzurbDxSXLGrOto5w--GMhIF7JQrtG3GAkWMaCOH4IyizwrfkDi-iWMjQyMff5rg/exec";
     const LINE_URL = "https://lin.ee/AR5a78nI";
     
     let masterProducts = []; 
@@ -311,6 +311,11 @@
                     cart.push({
                         productId: product.商品ID,
                         itemName: nameParts.join("\n"),
+                        // 商品マスタの各項目を個別に保持
+                        name1: product.商品名 || "",
+                        name2: product.商品名2 || "",
+                        name3: product.商品名3 || "",
+                        name4: product.商品名4 || "" ,
                         size: document.getElementById(`size-${index}`).value,
                         quantity: qty,
                         price: Number(product.価格),
@@ -369,7 +374,12 @@
             email: document.getElementById('email').value,
             address: document.getElementById('address').value,
             itemId: item.productId,
+            // 連結された名称に加え、マスタ個別の名称も送信
             itemName: item.itemName,
+            itemName1: item.name1,
+            itemName2: item.name2,
+            itemName3: item.name3,
+            itemName4: item.name4,
             size: item.size,
             quantity: item.quantity,
             price: item.price,
