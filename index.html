@@ -147,10 +147,10 @@
             <div class="card">
                 <h3>注文者情報の入力</h3>
                 <div class="form-grid">
-                    <div><label class="required">選手氏名</label><input type="text" id="playerName" placeholder="例：山田 太郎"></div>
+                    <div><label class="required">氏名</label><input type="text" id="playerName" placeholder="例：山田 太郎"></div>
                     <div><label class="required">ローマ字表記</label><input type="text" id="romaji" placeholder="例：TARO YAMADA"></div>
-                    <div><label class="required">学年</label><input type="text" id="grade" placeholder="例：1年"></div>
-                    <div><label>背番号</label><input type="text" id="backNumber" placeholder="例：10"></div>
+                    <div><label class="required">卒業回数</label><input type="text" id="grade" placeholder="例：100回"></div>
+                    <div><label class="required">郵便番号</label><input type="text" id="backNumber" placeholder="例：278-0022"></div>
                     <div><label class="required">電話番号</label><input type="tel" id="tel" placeholder="例：09012345678"></div>
                     <div><label class="required">メールアドレス</label><input type="email" id="email" placeholder="例：example@mail.com"></div>
                     <div class="full-width"><label>住所</label><input type="text" id="address" placeholder="例：千葉県野田市..."></div>
@@ -170,9 +170,9 @@
             <div style="background:#f9f9f9; padding:15px; border-radius:8px; border-left: 5px solid #4CAF50; font-size: 14px;">
                 <div class="form-grid">
                     <p><strong>所属学校:</strong> <span class="confirm-school"></span></p>
-                    <p><strong>選手氏名:</strong> <span id="confirmName"></span> (<span id="confirmRomaji"></span>)</p>
-                    <p><strong>学年:</strong> <span id="confirmGrade"></span></p>
-                    <p><strong>背番号:</strong> <span id="confirmBackNumber"></span></p>
+                    <p><strong>氏名:</strong> <span id="confirmName"></span> (<span id="confirmRomaji"></span>)</p>
+                    <p><strong>卒業回数:</strong> <span id="confirmGrade"></span></p>
+                    <p><strong>郵便番号:</strong> <span id="confirmBackNumber"></span></p>
                     <p><strong>電話番号:</strong> <span id="confirmTel"></span></p>
                     <p class="full-width"><strong>メールアドレス:</strong> <span id="confirmEmail"></span></p>
                     <p class="full-width"><strong>住所:</strong> <span id="confirmAddress"></span></p>
@@ -296,7 +296,14 @@
 
     function goToStep(stepNum) {
         if (stepNum === 2) {
-            const requiredFields = { 'playerName': '選手氏名', 'romaji': 'ローマ字', 'grade': '学年', 'tel': '電話番号', 'email': 'メールアドレス' };
+            const requiredFields = { 
+                'playerName': '氏名', 
+                'romaji': 'ローマ字', 
+                'grade': '卒業回数', 
+                'backNumber': '郵便番号', 
+                'tel': '電話番号', 
+                'email': 'メールアドレス' 
+            };
             for (let id in requiredFields) {
                 if (!document.getElementById(id).value.trim()) { alert(`${requiredFields[id]}を入力してください。`); return; }
             }
@@ -311,7 +318,6 @@
                     cart.push({
                         productId: product.商品ID,
                         itemName: nameParts.join("\n"),
-                        // 商品マスタの各項目を個別に保持
                         name1: product.商品名 || "",
                         name2: product.商品名2 || "",
                         name3: product.商品名3 || "",
@@ -334,7 +340,7 @@
     function renderConfirmation() {
         document.getElementById('confirmName').innerText = document.getElementById('playerName').value;
         document.getElementById('confirmGrade').innerText = document.getElementById('grade').value;
-        document.getElementById('confirmBackNumber').innerText = document.getElementById('backNumber').value || "未設定";
+        document.getElementById('confirmBackNumber').innerText = document.getElementById('backNumber').value;
         document.getElementById('confirmRomaji').innerText = document.getElementById('romaji').value;
         document.getElementById('confirmTel').innerText = document.getElementById('tel').value;
         document.getElementById('confirmEmail').innerText = document.getElementById('email').value;
@@ -374,7 +380,6 @@
             email: document.getElementById('email').value,
             address: document.getElementById('address').value,
             itemId: item.productId,
-            // 連結された名称に加え、マスタ個別の名称も送信
             itemName: item.itemName,
             itemName1: item.name1,
             itemName2: item.name2,
