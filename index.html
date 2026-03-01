@@ -124,6 +124,7 @@
 <body>
 
 <div class="container">
+    <!-- LINE Floating Button -->
     <div class="line-floating-container">
         <div class="line-floating-btn" id="lineBtn">
             <img src="https://scdn.line-apps.com/n/line_add_friends/btn/ja.png" id="lineIconImg" alt="LINE" border="0">
@@ -138,11 +139,13 @@
     </div>
 
     <div id="mainContent">
+        <!-- Banner -->
         <div class="school-info-banner">
             <p>Order Form</p>
             <h1 id="schoolNameDisplay">読み込み中...</h1>
         </div>
 
+        <!-- STEP 1: Form & Product Selection -->
         <div id="step1" class="step active">
             <div class="card">
                 <h3>注文者情報の入力</h3>
@@ -150,10 +153,10 @@
                     <div><label class="required">氏名</label><input type="text" id="playerName" placeholder="例：山田 太郎"></div>
                     <div><label class="required">ローマ字表記</label><input type="text" id="romaji" placeholder="例：TARO YAMADA"></div>
                     <div><label class="required">卒業回数</label><input type="text" id="grade" placeholder="例：100回"></div>
-                    <div><label class="required">郵便番号</label><input type="text" id="backNumber" placeholder="例：278-0022"></div>
                     <div><label class="required">電話番号</label><input type="tel" id="tel" placeholder="例：09012345678"></div>
                     <div><label class="required">メールアドレス</label><input type="email" id="email" placeholder="例：example@mail.com"></div>
-                    <div class="full-width"><label>住所</label><input type="text" id="address" placeholder="例：千葉県野田市..."></div>
+                    <div><label class="required">郵便番号</label><input type="text" id="backNumber" placeholder="例：278-0022"></div>
+                    <div class="full-width"><label class="required">住所</label><input type="text" id="address" placeholder="例：千葉県野田市..."></div>
                 </div>
             </div>
 
@@ -165,6 +168,7 @@
             </div>
         </div>
 
+        <!-- STEP 2: Confirmation -->
         <div id="step2" class="step card">
             <h3>注文内容の最終確認</h3>
             <div style="background:#f9f9f9; padding:15px; border-radius:8px; border-left: 5px solid #4CAF50; font-size: 14px;">
@@ -172,9 +176,9 @@
                     <p><strong>所属学校:</strong> <span class="confirm-school"></span></p>
                     <p><strong>氏名:</strong> <span id="confirmName"></span> (<span id="confirmRomaji"></span>)</p>
                     <p><strong>卒業回数:</strong> <span id="confirmGrade"></span></p>
-                    <p><strong>郵便番号:</strong> <span id="confirmBackNumber"></span></p>
                     <p><strong>電話番号:</strong> <span id="confirmTel"></span></p>
-                    <p class="full-width"><strong>メールアドレス:</strong> <span id="confirmEmail"></span></p>
+                    <p><strong>メールアドレス:</strong> <span id="confirmEmail"></span></p>
+                    <p><strong>郵便番号:</strong> <span id="confirmBackNumber"></span></p>
                     <p class="full-width"><strong>住所:</strong> <span id="confirmAddress"></span></p>
                 </div>
             </div>
@@ -196,6 +200,7 @@
             </div>
         </div>
 
+        <!-- STEP 3: Success -->
         <div id="step3" class="step card" style="text-align:center; padding:60px 20px;">
             <h1 style="color:#4CAF50; font-size: 3em;">✔</h1>
             <h2>注文を受け付けました</h2>
@@ -203,6 +208,7 @@
             <button onclick="location.reload()" class="btn-back" style="margin-top: 20px; max-width: 300px; display: inline-block;">新しく注文する</button>
         </div>
 
+        <!-- Footer -->
         <footer>
             <span class="footer-title">【お問い合わせ先】</span>
             <div class="footer-contact"><strong>株式会社BA-SEN</strong></div>
@@ -296,16 +302,21 @@
 
     function goToStep(stepNum) {
         if (stepNum === 2) {
+            // 入力チェック（順序に関わらず全ての必須項目を検証）
             const requiredFields = { 
                 'playerName': '氏名', 
                 'romaji': 'ローマ字', 
                 'grade': '卒業回数', 
                 'backNumber': '郵便番号', 
                 'tel': '電話番号', 
-                'email': 'メールアドレス' 
+                'email': 'メールアドレス',
+                'address': '住所'
             };
             for (let id in requiredFields) {
-                if (!document.getElementById(id).value.trim()) { alert(`${requiredFields[id]}を入力してください。`); return; }
+                if (!document.getElementById(id).value.trim()) { 
+                    alert(`${requiredFields[id]}を入力してください。`); 
+                    return; 
+                }
             }
             
             cart = [];
@@ -344,7 +355,7 @@
         document.getElementById('confirmRomaji').innerText = document.getElementById('romaji').value;
         document.getElementById('confirmTel').innerText = document.getElementById('tel').value;
         document.getElementById('confirmEmail').innerText = document.getElementById('email').value;
-        document.getElementById('confirmAddress').innerText = document.getElementById('address').value || "未入力";
+        document.getElementById('confirmAddress').innerText = document.getElementById('address').value;
         
         const tbody = document.getElementById('confirmItems');
         let total = 0;
